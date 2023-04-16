@@ -1,0 +1,79 @@
+Written Questions
+
+Q1. Run the web crawler using the configurations located at src/main/config/written_question_1a.json and
+    src/main/config/written_question_1b.json. The only difference between these configurations is that one always uses
+    the sequential crawler and the other always uses the parallel crawler. Inspect the profile output in
+    profileData.txt.
+
+    If you are using a multi-processor computer, you should notice that SequentialWebCrawler#crawl and
+    ParallelWebCrawler#crawl took about the same amount of time, but PageParserImpl#parse took much longer when run with
+    the ParallelWebCrawler.
+
+    Why did the parser take more time when run with ParallelWebCrawler?
+
+    Answer 1. Each task depend on the result of the previous task : the Profiler Interface, the ProfilerImpl class,
+    and the ProfilingMethodInterceptor. The Profiler sums the time taken by the parse method in all threads.
+    The ParallelWebCrawler visits more pages than the SequentialWebCrawler.
+
+    For the SenquentialWebCrawler :
+     {"wordCounts":{"udacity":245,"helped":110,"nanodegree":80,"data":74,"developer":71},"urlsVisited":2}
+
+    For the ParallelWebCrawler :
+    {"wordCounts":{"udacity":305,"data":226,"program":141,"nanodegree":128,"with":123},"urlsVisited":5}
+
+
+Q2. Your manager ran your crawler on her old personal computer, using the configurations from Q1, and she notices that
+    the sequential crawler actually outperforms the parallel crawler. She would like to know why.
+
+    (a) Suggest one reason why the sequential web crawler was able to read more web pages than the parallel crawler.
+        (Hint: Try setting "parallelism" to 1 in the JSON configs to simulate your manager's computer.)
+
+        The parallel crawler uses a fork-join pool that is optimized on computers with multiple processors : tasks are shared
+        in the pool by the processors for working faster.
+
+        So, on an old computer, parallel web crawler needs to use more resources on a thread.
+        It will cost resources to use parallelism on an old computer.
+        With sequential web crawler, on an old computer, it uses just one thread and manages less resources on it.
+
+
+
+
+
+    (b) Suggest one scenario in which the parallel web crawler will almost certainly perform better than the sequential
+        crawler. Why will it perform better?
+
+        On a multi-core computer, the parallel web crawler will perform better than the sequential crawler.
+
+
+Q3. Analyze your method profiler through the lens of Aspect Oriented Programming, by answering the following questions:
+
+    (a) What cross-cutting concern is being addressed by the com.udacity.webcrawler.profiler.Profiler class?
+
+    The performance measure of the Profiler class is a property of a cross-cutting concern.
+
+    (b) What are the join points of the Profiler in the web crawler program?
+
+    The methods with @Profiled annotation.
+
+
+Q4. Identify three (3) different design patterns used in this project, and explain which interfaces, classes, and/or
+    libraries use or implement those design patterns.
+
+    For each pattern, name one thing about the pattern that you LIKED, and one thing you DISLIKED. If you did not like
+    anything, you can name two things you disliked.
+
+    Answer 4. Three different design pattens :
+
+        Proxy pattern is used in the ProfilerImpl class. It is useful to control or manage access to the delegate. I do
+        not like the dynamic proxy pattern, because it can be difficult to understand what it does.
+
+        Builder pattern is used in the CrawlerConfiguration class. It is useful to construct the state of a to-be-created
+        object, property by property, and then build the project. I do like the builder pattern, because it makes the code
+        more readable.
+
+        Dependency Injection pattern is used the WebCrawlerMain class. It is useful when the code need to work with any
+        object, class or interface that the code imports, creates or uses. Here the WebCrawlerMain class, needs to inject
+        the WebCrawler interface and the Profiler interface. I do like the dependency injection pattern, because it
+        makes the code more readable.
+
+
